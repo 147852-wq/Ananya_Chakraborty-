@@ -1,0 +1,23 @@
+import hashlib
+import time
+import random
+
+class PoWBlock:
+    def __init__(self, data, difficulty="0000"):
+        self.data = data
+        self.nonce = 0
+        self.difficulty = difficulty
+        self.hash = self.calculate_hash()
+
+    def calculate_hash(self):
+        return hashlib.sha256(f"{self.data}{self.nonce}".encode()).hexdigest()
+
+    def mine(self):
+        attempts = 0
+        start = time.time()
+        while not self.hash.startswith(self.difficulty):
+            self.nonce += 1
+            self.hash = self.calculate_hash()
+            attempts += 1
+        end = time.time()
+        return attempts, end - start, self.hash
