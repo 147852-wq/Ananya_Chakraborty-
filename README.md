@@ -140,5 +140,55 @@ block2 = Block(2, "Third Block", block1.hash)
 print(block0)
 print(block1)
 print(block2)
+Display all blocks with their hashes 
+import hashlib
+import time
+
+class Block:
+    def __init__(self, index, data, previous_hash, difficulty=2):
+        self.index = index
+        self.timestamp = time.time()
+        self.data = data
+        self.previous_hash = previous_hash
+        self.nonce = 0
+        self.difficulty = difficulty
+        self.hash = self.mine_block()
+
+    def compute_hash(self):
+        block_string = f"{self.index}{self.timestamp}{self.data}{self.previous_hash}{self.nonce}"
+        return hashlib.sha256(block_string.encode()).hexdigest()
+
+    def mine_block(self):
+        print(f"Mining Block #{self.index}...")
+        while True:
+            computed_hash = self.compute_hash()
+            if computed_hash.startswith('0' * self.difficulty):
+                return computed_hash
+            self.nonce += 1
+
+    def display(self):
+        print(f"\nBlock #{self.index}")
+        print(f"Timestamp     : {self.timestamp}")
+        print(f"Data          : {self.data}")
+        print(f"Previous Hash : {self.previous_hash}")
+        print(f"Nonce         : {self.nonce}")
+        print(f"Hash          : {self.hash}")
+
+# --- Create and link the blocks ---
+
+# Genesis Block
+block0 = Block(0, "Genesis Block", "0")
+
+# Second Block linked to Genesis
+block1 = Block(1, "Second Block", block0.hash)
+
+# Third Block linked to Second
+block2 = Block(2, "Third Block", block1.hash)
+
+# --- Display all blocks with hashes ---
+block0.display()
+block1.display()
+block2.display()
+
 
 
