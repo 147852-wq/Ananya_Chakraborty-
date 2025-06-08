@@ -190,143 +190,104 @@ block0.display()
 block1.display()
 block2.display()
 
-2.Simulate Proof-of-Work by mining a block that satisfies a difficulty condition.
-import hashlib
-import time
+Sample Output (truncated for clarity):
+Mining Block #0...
+Mining Block #1...
+Mining Block #2...
 
-def mine_block(data, previous_hash, difficulty):
-    nonce = 0
-    prefix = '0' * difficulty
-    print(f"Mining block with difficulty: {difficulty} (hash prefix = {prefix})")
-    start_time = time.time()
+Block #0
+Timestamp     : 1720422880.72
+Data          : Genesis Block
+Previous Hash : 0
+Nonce         : 1374
+Hash          : 00a9f2d...
 
-    while True:
-        # Prepare the block content string
-        block_content = f"{data}{previous_hash}{nonce}"
-        block_hash = hashlib.sha256(block_content.encode()).hexdigest()
-        
-        # Check if hash meets difficulty criteria
-        if block_hash.startswith(prefix):
-            elapsed_time = time.time() - start_time
-            print(f"Block mined!")
-            print(f"Nonce: {nonce}")
-            print(f"Hash: {block_hash}")
-            print(f"Time taken: {elapsed_time:.2f} seconds")
-            return nonce, block_hash
-        nonce += 1
+Block #1
+Timestamp     : 1720422881.83
+Data          : Second Block
+Previous Hash : 00a9f2d...
+Nonce         : 924
+Hash          : 003b84c...
 
-# Example usage:
-data = "Sample transaction data"
-previous_hash = "000000abc123"
-difficulty = 4  # Number of leading zeros required
-
-mine_block(data, previous_hash, difficulty)
-It keeps changing the nonce until the SHA-256 hash of (data + previous_hash + nonce) starts with difficulty number of zeros.
- Modify your Block class to include a mineBlock(difficulty) function 
- import hashlib
-import time
-
-class Block:
-    def __init__(self, data, previous_hash=''):
-        self.data = data
-        self.previous_hash = previous_hash
-        self.timestamp = time.time()
-        self.nonce = 0
-        self.hash = self.calculate_hash()
-
-    def calculate_hash(self):
-        block_content = f"{self.data}{self.previous_hash}{self.timestamp}{self.nonce}"
-        return hashlib.sha256(block_content.encode()).hexdigest()
-
-    def mineBlock(self, difficulty):
-        print(f"⛏️  Mining block with difficulty {difficulty}...")
-        prefix = '0' * difficulty
-
-        while not self.hash.startswith(prefix):
-            self.nonce += 1
-            self.hash = self.calculate_hash()
-
-        print(f"✅ Block mined: {self.hash}")
-        print(f"Nonce used: {self.nonce}\n")
-
-# Example usage:
-if __name__ == "__main__":
-    genesis_block = Block("Genesis Block", "0")
-    genesis_block.mineBlock(difficulty=4)
-
-    block2 = Block("Block 2 data", genesis_block.hash)
-    block2.mineBlock(difficulty=4)
-Set difficulty (e.g., hash must start with "0000") 
+Block #2
+Timestamp     : 1720422882.95
+Data          : Third Block
+Previous Hash : 003b84c...
+Nonce         : 1021
+Hash          : 001ce77...
+�
+�
+ Challenge: 
+● Change the data of Block 1 and recalculate its hash. 
+● Observe how all following blocks become invalid unless hashes are recomputed.
 import hashlib
 import time
 
 class Block:
-    def __init__(self, data, previous_hash=''):
+    def __init__(self, index, data, previous_hash, difficulty=2):
+        self.index = index
+        self.timestamp = time.time()
         self.data = data
         self.previous_hash = previous_hash
-        self.timestamp = time.time()
         self.nonce = 0
-        self.hash = self.calculate_hash()
+        self.difficulty = difficulty
+        self.hash = self.mine_block()
 
-    def calculate_hash(self):
-        content = f"{self.data}{self.previous_hash}{self.timestamp}{self.nonce}"
-        return hashlib.sha256(content.encode()).hexdigest()
-
-    def mine_block(self, difficulty_prefix):
-        print(f"⛏️ Mining block until hash starts with '{difficulty_prefix}'...")
-        while not self.hash.startswith(difficulty_prefix):
-            self.nonce += 1
-            self.hash = self.calculate_hash()
-        print(f"✅ Block mined! Hash: {self.hash}")
-        print(f"Nonce: {self.nonce}\n")
-
-# Example usage:
-if __name__ == "__main__":
-    difficulty = "0000"  # Hash must start with this prefix
-    genesis = Block("Genesis block data", "0")
-    genesis.mine_block(difficulty)
-
-    block2 = Block("Second block data", genesis.hash)
-    block2.mine_block(difficulty)
-In mineBlock(), repeatedly increment the nonce until the hash meets the difficulty 
-condition 
-import hashlib
-import time
-
-class Block:
-    def __init__(self, data, previous_hash=''):
-        self.data = data
-        self.previous_hash = previous_hash
-        self.timestamp = time.time()
-        self.nonce = 0
-        self.hash = self.calculate_hash()
-
-    def calculate_hash(self):
-        block_string = f"{self.data}{self.previous_hash}{self.timestamp}{self.nonce}"
+    def compute_hash(self):
+        block_string = f"{self.index}{self.timestamp}{self.data}{self.previous_hash}{self.nonce}"
         return hashlib.sha256(block_string.encode()).hexdigest()
 
-    def mineBlock(self, difficulty_prefix="0000"):
-        print(f"⛏️ Mining block until hash starts with '{difficulty_prefix}'...")
-        while not self.hash.startswith(difficulty_prefix):
+    def mine_block(self):
+        while True:
+            computed_hash = self.compute_hash()
+            if computed_hash.startswith('0' * self.difficulty):
+                return computed_hash
             self.nonce += 1
-            self.hash = self.calculate_hash()
-        print(f"✅ Block mined successfully!")
-        print(f"Hash: {self.hash}")
-        print(f"Nonce: {self.nonce}\n")
 
-# Example usage
-if __name__ == "__main__":
-    # Set the difficulty (prefix the hash must start with)
-    difficulty = "0000"
+    def display(self):
+        print(f"\nBlock #{self.index}")
+        print(f"Timestamp     : {self.timestamp}")
+        print(f"Data          : {self.data}")
+        print(f"Previous Hash : {self.previous_hash}")
+        print(f"Nonce         : {self.nonce}")
+        print(f"Hash          : {self.hash}")
 
-    # Create and mine the genesis block
-    genesis_block = Block("Genesis Block", "0")
-    genesis_block.mineBlock(difficulty)
+# Step 1: Create and link 3 blocks
+block0 = Block(0, "Genesis Block", "0")
+block1 = Block(1, "Second Block", block0.hash)
+block2 = Block(2, "Third Block", block1.hash)
 
-    # Create and mine the second block
-    block2 = Block("Block 2 Data", genesis_block.hash)
-    block2.mineBlock(difficulty)
+# Step 2: Display original chain
+print("⛓️ Original Blockchain:")
+block0.display()
+block1.display()
+block2.display()
 
+# Step 3: Tamper with Block 1
+print("\n🔧 Tampering with Block 1's data...")
+block1.data = "Hacked Data"
+block1.hash = block1.mine_block()  # Recalculate Block 1's hash
 
+# Step 4: Display tampered chain
+print("\n🚨 Tampered Blockchain:")
+block0.display()
+block1.display()
+block2.display()  # Block 2's previous hash is now invalid
 
+# Step 5: Check chain validity
+def validate_chain(blocks):
+    for i in range(1, len(blocks)):
+        if blocks[i].previous_hash != blocks[i - 1].hash:
+            print(f"❌ Block #{i} is INVALID!")
+        else:
+            print(f"✅ Block #{i} is valid.")
 
+print("\n🔍 Validating Blockchain:")
+validate_chain([block0, block1, block2])
+After changing Block 1’s data:
+
+Its hash changes
+
+Block 2’s previous_hash now points to an old, incorrect hash
+
+This breaks the chain
