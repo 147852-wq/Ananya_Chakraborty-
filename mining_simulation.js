@@ -137,5 +137,63 @@ if __name__ == "__main__":
     # Create and mine the second block
     block2 = Block("Block 2 Data", genesis_block.hash)
     block2.mineBlock(difficulty)
+how many nonce attempts were needed 
+import hashlib
+import time
+
+class Block:
+    def __init__(self, data, previous_hash=''):
+        self.data = data
+        self.previous_hash = previous_hash
+        self.timestamp = time.time()
+        self.nonce = 0
+        self.hash = self.calculate_hash()
+
+    def calculate_hash(self):
+        block_string = f"{self.data}{self.previous_hash}{self.timestamp}{self.nonce}"
+        return hashlib.sha256(block_string.encode()).hexdigest()
+
+    def mineBlock(self, difficulty_prefix="0000"):
+        print(f"⛏️ Mining block until hash starts with '{difficulty_prefix}'...")
+        start_time = time.time()
+        attempts = 0
+
+        while not self.hash.startswith(difficulty_prefix):
+            self.nonce += 1
+            self.hash = self.calculate_hash()
+            attempts += 1
+
+        end_time = time.time()
+        print(f"✅ Block mined successfully!")
+        print(f"Hash: {self.hash}")
+        print(f"Nonce: {self.nonce}")
+        print(f"Attempts: {attempts}")
+        print(f"Time taken: {end_time - start_time:.2f} seconds\n")
+
+# Example usage
+if __name__ == "__main__":
+    difficulty = "0000"
+
+    genesis_block = Block("Genesis Block", "0")
+    genesis_block.mineBlock(difficulty)
+
+    block2 = Block("Block 2 Data", genesis_block.hash)
+    block2.mineBlock(difficulty)
+ Output Includes:
+✅ Final hash of the block
+
+🔢 Nonce used
+
+🔁 Number of nonce attempts (i.e., total hash recalculations)
+
+⏱️ Time taken to mine the block
+Measure time taken using a timer 
+⛓️ Final Hash: 000082afb4e80c52109a6fef605ab85a9cd717354eb735c9078faba48ef8c5d0
+
+🔢 Nonce used: 4232
+
+🔁 Attempts made: 4232
+
+⏱️ Time taken: 0.0181 seconds
 
           
